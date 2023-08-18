@@ -1,5 +1,6 @@
 const express = require("express");
-const controller = require("./controllers/posts");
+const postsRouter = require("./routes/posts");
+
 const port = process.env.PORT || 3000;
 
 const app = express();
@@ -19,12 +20,16 @@ app.get("/", (req, res) => {
   res.status(200).send("<h1>Welcom to the home page</h1>");
 });
 
-// Routes pour interagir avec les articles (posts)
-app.get("/posts", controller.getAll);
-app.get("/posts/:id", controller.getOne);
-app.post("/posts", controller.addOne);
-app.delete("/posts/:id", controller.deletOne);
-app.patch("/posts/:id", controller.updateOne);
+// Route pour interagir avec les articles (posts)
+app.use("/posts", postsRouter);
+
+// Route pour gérer les erreurs
+
+const errMiddleware = (err, req, res, next) => {
+  res.status(400).json({ err: err });
+};
+
+app.use(errMiddleware);
 
 // Route pour gérer les erreurs 404 (page non trouvée)
 app.get("*", (req, res) => {
