@@ -1,6 +1,7 @@
 const express = require("express");
 const postsRouter = require("./routes/posts");
 
+const db = require("./config/db");
 const port = process.env.PORT || 3000;
 
 const app = express();
@@ -23,10 +24,21 @@ app.get("/", (req, res) => {
 // Route pour interagir avec les articles (posts)
 app.use("/posts", postsRouter);
 
-// Route pour gérer les erreurs
+// Middleware pour gérer les erreurs
+
 
 const errMiddleware = (err, req, res, next) => {
-  res.status(400).json({ err: err });
+  console.error(err);
+
+  const errorResponse = {
+    error: {
+      name: err.name,
+      message: err.message,
+      stack: err.stack,
+    },
+  };
+
+  res.status(err.status || 404).json(errorResponse);
 };
 
 app.use(errMiddleware);

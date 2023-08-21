@@ -1,20 +1,32 @@
 const posts = require("../models/data");
-
+const queries = require("../models/queries/post");
+const Post = require("../models/schemas/post");
 const controller = {
-  getAll: (req, res) => {
-    res.status(200).json(posts);
+  getAll: async (req, res, next) => {
+    try {
+      const posts = await queries.getAll();
+      if (posts.length > 0) {
+        res.status(200).json({ posts: posts });
+      } else {
+        res.status(200).json({ message: "no posts added yet" });
+      }
+    } catch (error) {
+      next(error);
+    }
   },
 
-  getOne: (req, res) => {
-    // Trouver le post correspondant à l'ID dans les paramètres de la requête
-    const foundPost = posts.find((post) => post.id === parseInt(req.params.id));
-
-    if (foundPost) {
-      // Renvoyer le post trouvé si existant
-      res.status(200).json(foundPost);
-    } else {
-      // Renvoyer une erreur 404 si le post n'existe pas
-      res.status(404).send("Post doesn't exist");
+  // Trouver le post dans la DB correspondant à l'ID dans les paramètres de la requête
+  getOne: async (req, res) => {
+    const y = parseInt(req.params.id);
+    try {
+      const post = await queries.getOne({ id: y });
+      if (post) {
+        res.status(200).json(post);
+      } else {
+        res.status(404).json({ message: "Post not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -54,7 +66,12 @@ const controller = {
     if (foundPost) {
       // Mettre à jour les propriétés du post avec les nouvelles données de la requête
 
-      if (!req.body.title && !req.body.body) {
+      if (
+        !req.body.userId &&
+        !req.body.id &&
+        !req.body.title &&
+        !req.body.body
+      ) {
         res
           .status(200)
           .json({ message: "you haven't modified all the values" });
