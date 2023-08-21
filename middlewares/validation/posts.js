@@ -73,7 +73,6 @@ const rules = {
 
     body = typeof body === "string" ? body.trim() : undefined;
 
-    // const body = req.body.body ? req.body.body.trim() : undefined;
     if (body) {
       if (body.length < 10 || body.length > 1000) {
         next({
@@ -116,55 +115,44 @@ const rules = {
   titleNotEmpty: (req, res, next) => {
     const title = req.body.title;
 
-    if (title) {
-      if (title === "") {
-        next({
-          name: "validation error",
-          element: "body : title",
-          message: "The post title cannot be empty",
-        });
-      }
+    if (title === "" || !title) {
+      next({
+        name: "validation error",
+        element: "body : title",
+        message: "The post title cannot be empty",
+      });
     }
 
     next();
   },
+
   bodyNotEmpty: (req, res, next) => {
-    if (req.body.body) {
-      let body = req.body.body;
+    let body = req.body.body;
 
-      if (typeof body === "string") {
-        body = body.trim();
-      } else {
-        next({
-          name: "validation error",
-          element: "body : body",
-          message: "The post body cannot be number",
-        });
-      }
-
-      if (body === "") {
-        next({
-          name: "validation error",
-          element: "body : body",
-          message: "The post body cannot be empty",
-        });
-      }
-
-      next();
+    if (typeof body === "string") {
+      body = body.trim();
     } else {
-      next();
+      next({
+        name: "validation error",
+        element: "body : body",
+        message: "The post body cannot be number",
+      });
     }
+
+    if (body === "") {
+      next({
+        name: "validation error",
+        element: "body : body",
+        message: "The post body cannot be empty",
+      });
+    }
+
+    next();
   },
 };
 const validate = {
   getOne: [rules.id],
-  addOne: [
-    rules.postInfinitId,
-    rules.titleRequired,
-    rules.title,
-    rules.bodyRequired,
-    rules.body,
-  ],
+  addOne: [rules.titleRequired, rules.title, rules.bodyRequired, rules.body],
   updateOne: [
     rules.userId,
     rules.id,

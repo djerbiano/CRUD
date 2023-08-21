@@ -26,7 +26,6 @@ app.use("/posts", postsRouter);
 
 // Middleware pour gérer les erreurs
 
-
 const errMiddleware = (err, req, res, next) => {
   console.error(err);
 
